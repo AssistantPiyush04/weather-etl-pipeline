@@ -43,6 +43,19 @@ def save_raw_data(data):
     print(f"Raw data saved to: {file_Path}")
     logger.info(f"Raw data saved to: {file_Path}")
 
+
+def cleanup_old_files(keep=10):
+    raw_dir=Path("data/raw")
+
+    raw_files=list(raw_dir.glob("weather_*.json"))
+    raw_files.sort(key=lambda file: file.stat().st_mtime, reverse=True)
+
+    for old_file in raw_files[keep:]:
+        old_file.unlink()
+        logger.info(f"Deleted old raw file: {old_file}")
+
+
 if __name__ == "__main__":
     data= fetch_weather_data()
     save_raw_data(data)
+    cleanup_old_files()
