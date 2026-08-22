@@ -23,7 +23,7 @@ def load_weather_data(csv_file):
    cursor= connection.cursor()
 
    insert_query= """
-   insert into weather_reports 
+   insert ignore into weather_reports 
    (city,temperature,humidity,wind_speed,recorded_at)
    values(%s, %s, %s, %s, %s)
    """
