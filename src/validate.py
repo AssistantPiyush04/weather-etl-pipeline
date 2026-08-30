@@ -30,11 +30,12 @@ def validate_weather_data():
 
     records = cursor.fetchall()
 
+    validation_passed = True
+
     # NULL validation
     null_records = 0
 
     for record in records:
-
         if (
             record["city"] is None
             or record["temperature"] is None
@@ -56,9 +57,9 @@ def validate_weather_data():
             f"NULL check failed - "
             f"{null_records} records contain NULL values"
         )
+        validation_passed = False
 
     print(f"Total records fetched: {len(records)}")
-    logger.info(f"{len(records)} records fetched for validation")
 
     # Range validation
     invalid_humidity = 0
@@ -79,7 +80,7 @@ def validate_weather_data():
         ):
             invalid_temperature += 1
 
-    # Humidity result
+    # Humidity
     if invalid_humidity == 0:
         print("Humidity check: PASS")
         logger.info("Humidity range check passed")
@@ -92,8 +93,9 @@ def validate_weather_data():
             f"Humidity range check failed - "
             f"{invalid_humidity} invalid records"
         )
+        validation_passed = False
 
-    # Wind speed result
+    # Wind speed
     if invalid_wind_speed == 0:
         print("Wind speed check: PASS")
         logger.info("Wind speed range check passed")
@@ -106,8 +108,9 @@ def validate_weather_data():
             f"Wind speed range check failed - "
             f"{invalid_wind_speed} invalid records"
         )
+        validation_passed = False
 
-    # Temperature result
+    # Temperature
     if invalid_temperature == 0:
         print("Temperature check: PASS")
         logger.info("Temperature range check passed")
@@ -120,6 +123,67 @@ def validate_weather_data():
             f"Temperature range check failed - "
             f"{invalid_temperature} invalid records"
         )
+        validation_passed = False
+
+    # Duplicate validation
+    cursor.execute("""
+        SELECT city, recorded_at, COUNT(*) AS duplicate_count
+        FROM weather_reports
+        GROUP BY city, recorded_at
+        HAVING COUNT(*) > 1
+    """)
+
+    duplicate_records = cursor.fetchall()
+
+    if len(duplicate_records) == 0:
+        print("Duplicate check: PASS")
+        logger.info("Duplicate check passed")
+    else:
+        print(
+            f"Duplicate check: FAIL - "
+            f"{len(duplicate_records)} duplicate groups found"
+        )
+        logger.warning(
+            f"Duplicate check failed - "
+            f"{len(duplicate_records)} duplicate groups found"
+        )
+        validation_passed = False
+
+    # Final report
+    print("\n=============================")
+    print("     DATA QUALITY REPORT")
+    print("=============================")
+    print(f"Total records       : {len(records)}")
+    print(
+        f"NULL check          : "
+        f"{'PASS' if null_records == 0 else 'FAIL'}"
+    )
+    print(
+        f"Humidity check      : "
+        f"{'PASS' if invalid_humidity == 0 else 'FAIL'}"
+    )
+    print(
+        f"Wind speed check    : "
+        f"{'PASS' if invalid_wind_speed == 0 else 'FAIL'}"
+    )
+    print(
+        f"Temperature check   : "
+        f"{'PASS' if invalid_temperature == 0 else 'FAIL'}"
+    )
+    print(
+        f"Duplicate check     : "
+        f"{'PASS' if len(duplicate_records) == 0 else 'FAIL'}"
+    )
+    print("-----------------------------")
+
+    if validation_passed:
+        print("Overall status      : PASS")
+        logger.info("Overall data quality validation passed")
+    else:
+        print("Overall status      : FAIL")
+        logger.warning("Overall data quality validation failed")
+
+    print("=============================")
 
     cursor.close()
     connection.close()
