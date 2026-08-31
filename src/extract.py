@@ -59,3 +59,4 @@ if __name__ == "__main__":
     data= fetch_weather_data()
     save_raw_data(data)
     cleanup_old_files()
+    extract_status= "SUCCESS"

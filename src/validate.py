@@ -188,6 +188,7 @@ def validate_weather_data():
     cursor.close()
     connection.close()
 
+    return validation_passed
 
 if __name__ == "__main__":
     validate_weather_data()
