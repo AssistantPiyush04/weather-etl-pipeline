@@ -16,7 +16,6 @@ def load_weather_data(csv_file):
 
    print("Mysql connection is succesfull")
 
-   csv_file= "data/processed/weather_data.csv"
    df=pd.read_csv(csv_file)
    print(df)
 
@@ -28,6 +27,9 @@ def load_weather_data(csv_file):
    values(%s, %s, %s, %s, %s)
    """
 
+   inserted_count=0
+   duplicate_count=0
+
    for _, row in df.iterrows():
       values=(
          row["city"],
@@ -38,11 +40,18 @@ def load_weather_data(csv_file):
       )
       cursor.execute(insert_query, values)
 
+      if cursor.rowcount==1:
+         inserted_count+=1
+      else:
+         duplicate_count+=1
+
    connection.commit()
    cursor.close()
    connection.close()
 
-   print("Weather data loded succesfully in mysql")
+   print(f"Inserted_count: {inserted_count}")
+   print(f"Duplicate_count: {duplicate_count}")
+   print(f"Data loaded into MYSQL database successfully")
 
 if __name__ == '__main__':
    load_weather_data("data/processed/weather_data.csv")

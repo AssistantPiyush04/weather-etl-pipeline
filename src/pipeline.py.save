@@ -1,0 +1,64 @@
+C
+from extract import fetch_weather_data, save_raw_data
+from transform import transform_weather_data
+from load import load_weather_data
+from validate import validate_weather_data
+from logger import logger
+import sys
+
+
+def run_pipeline():
+
+    extract_status= "NOT RUN"
+    transform_status= "NOT RUN"
+    load_status= "NOT RUN"
+    validation_status= "NOT RUN"
+
+    logger.info("ETL Pipeline started")
+
+    try:
+        data = fetch_weather_data()
+        save_raw_data(data)
+
+        csv_file = transform_weather_data()
+        load_weather_data(csv_file)
+
+        validation_result = validate_weather_data()
+
+        if validation_result:
+            validation_result= "PASS"
+        else:
+            validation_result= "FAIL"
+            raise ValueError("Data quality validation failed")
+
+        print("\n=============================")
+        print("       ETL PIPELINE SUMMARY")
+        print("==============================")
+        print(f"Extract       : {extract_status}")
+        print(f"Transform     : {transform_status}")
+        print(f"Load          : {load_status}")
+        print(f"validation    : {validation_status}")
+        print("-------------------------------")
+        print("Pipeline       : Success")
+        print("================================")
+        
+        logger.info("ETL Pipeline completed successfully")
+        return True
+
+    except Exception as error:
+        logger.error(f"Pipeline failed: {error}")
+
+        print("\n===============================")
+        print("       ETL PIPELINE SUMMARY")
+        print(f"Extract       : {extract_status}")
+        print(f"Transform     : {transform_staus}")
+        print(f"Load          : {load_status}")
+        print(f"validation    : {validation_status}")
+        print("----------------------------------")
+        print("Pipeline       : Failed")
+        print("==================================")
+        sys.exit(1)
+
+
+if __name__ == "__main__":
+    run_pipeline()
