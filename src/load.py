@@ -53,5 +53,7 @@ def load_weather_data(csv_file):
    print(f"Duplicate_count: {duplicate_count}")
    print(f"Data loaded into MYSQL database successfully")
 
+   return inserted_count, duplicate_count
+
 if __name__ == '__main__':
    load_weather_data("data/processed/weather_data.csv")

@@ -28,7 +28,7 @@ def run_pipeline():
         transform_status = "SUCCESS"
 
         # LOAD
-        load_weather_data(csv_file)
+        inserted_count, duplicate_count = load_weather_data(csv_file)
         load_status = "SUCCESS"
 
         # VALIDATION
@@ -67,6 +67,8 @@ def run_pipeline():
         print(f"Transform     : {transform_status}")
         print(f"Load          : {load_status}")
         print(f"Validation    : {validation_status}")
+        print(f"Duplicates    : {duplicate_count}")
+        print(f"Validation Result: {validation_result}")
         print("-------------------------------")
         print("Pipeline       : Failed")
         print("================================")
